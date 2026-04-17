@@ -1,0 +1,35 @@
+<svg width="728" height="90" viewBox="0 0 728 90" xmlns="http://www.w3.org/2000/svg">
+  <!-- Friendly community background -->
+  <defs>
+    <linearGradient id="community-bg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1a2a1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1f3520;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="728" height="90" fill="url(#community-bg)" rx="8"/>
+  
+  <!-- Border -->
+  <rect width="728" height="90" fill="none" stroke="#2a4a2a" stroke-width="1" rx="8"/>
+  
+  <!-- Simple price tag icon -->
+  <g transform="translate(45, 32)">
+    <path d="M 5 5 L 25 5 L 30 15 L 25 25 L 5 25 Z" fill="#10b981" opacity="0.3"/>
+    <path d="M 5 5 L 25 5 L 30 15 L 25 25 L 5 25 Z" fill="none" stroke="#10b981" stroke-width="2"/>
+    <circle cx="22" cy="15" r="3" fill="#10b981"/>
+    <text x="8" y="18" font-family="system-ui" font-size="10" fill="#10b981" font-weight="700">€</text>
+  </g>
+  
+  <!-- Text -->
+  <text x="100" y="38" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#6ee7b7" font-weight="400">
+    Mehr regionale Projekte auf
+  </text>
+  <text x="100" y="60" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#d1fae5" font-weight="600">
+    FlohmarktGuide.org
+  </text>
+  
+  <!-- Subtle indicator -->
+  <path d="M 675 40 L 680 45 L 675 50" stroke="#10b981" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M 683 40 L 688 45 L 683 50" stroke="#10b981" stroke-width="2" fill="none" opacity="0.4"/>
+</svg>

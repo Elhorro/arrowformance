@@ -1,0 +1,30 @@
+<svg width="728" height="90" viewBox="0 0 728 90" xmlns="http://www.w3.org/2000/svg">
+  <!-- Subtle gradient background -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1a1a1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2a2a2a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="728" height="90" fill="url(#bg)" rx="8"/>
+  
+  <!-- Border -->
+  <rect width="728" height="90" fill="none" stroke="#333" stroke-width="1" rx="8"/>
+  
+  <!-- Claude icon (simple abstract) -->
+  <circle cx="60" cy="45" r="18" fill="#f97316" opacity="0.2"/>
+  <circle cx="60" cy="45" r="12" fill="#f97316"/>
+  
+  <!-- Text -->
+  <text x="100" y="40" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#999" font-weight="400">
+    Analysiert mit KI von
+  </text>
+  <text x="100" y="60" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#fff" font-weight="600">
+    Claude.ai
+  </text>
+  
+  <!-- Subtle arrow -->
+  <path d="M 680 42 L 688 45 L 680 48" stroke="#f97316" stroke-width="2" fill="none" opacity="0.6"/>
+</svg>
