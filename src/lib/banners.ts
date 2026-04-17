@@ -1,27 +1,39 @@
 export interface Banner {
   id: string;
-  image: string;
-  link: string;
-  alt: string;
+  emoji: string;
+  title: string;
+  subtitle: string;
+  cta: string;
+  href: string;
+  gradient: string;
 }
 
 export const BANNERS: Banner[] = [
   {
     id: 'claude',
-    image: '/ads/claude-banner.svg',
-    link: 'https://claude.ai',
-    alt: 'Analysiert mit KI von Claude.ai'
+    emoji: '🤖',
+    title: 'Analysiert mit KI von Claude',
+    subtitle: 'Moderne Pose-Erkennung powered by Anthropic',
+    cta: 'Mehr erfahren',
+    href: 'https://claude.ai',
+    gradient: 'from-orange-600 to-orange-700'
   },
   {
     id: 'zsammsitzn',
-    image: '/ads/zsammsitzn-banner.svg',
-    link: 'https://zsammsitzn.com',
-    alt: 'Präsentiert von Zsammsitzn.com'
+    emoji: '🍷',
+    title: 'Präsentiert von Zsammsitzn',
+    subtitle: 'Regionale Events und gemütliche Zusammenkünfte',
+    cta: 'Entdecken',
+    href: 'https://zsammsitzn.com',
+    gradient: 'from-amber-700 to-amber-800'
   },
   {
     id: 'flohmarktguide',
-    image: '/ads/flohmarktguide-banner.svg',
-    link: 'https://flohmarktguide.org',
-    alt: 'Mehr regionale Projekte auf FlohmarktGuide.org'
+    emoji: '🏷️',
+    title: 'Mehr regionale Projekte',
+    subtitle: 'Flohmärkte und lokale Veranstaltungen in deiner Nähe',
+    cta: 'Besuchen',
+    href: 'https://flohmarktguide.org',
+    gradient: 'from-emerald-700 to-emerald-800'
   }
 ];
