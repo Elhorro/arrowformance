@@ -5,7 +5,7 @@ export interface Banner {
   alt: string;
 }
 
-export const banners: Banner[] = [
+export const BANNERS: Banner[] = [
   {
     id: 'claude',
     image: '/ads/claude-banner.svg',
