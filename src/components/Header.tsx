@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { History, Target } from 'lucide-react';
+import { fetchTotalAnalysisCount } from '../lib/supabase';
 
 interface HeaderProps {
   onReset: () => void;
@@ -6,6 +8,14 @@ interface HeaderProps {
 }
 
 export default function Header({ onReset, onShowHistory }: HeaderProps) {
+  const [totalCount, setTotalCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetchTotalAnalysisCount()
+      .then(setTotalCount)
+      .catch(() => { /* bei Fehler nichts anzeigen */ });
+  }, []);
+
   return (
     <header className="bg-stone-900 border-b border-stone-700">
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -23,6 +33,11 @@ export default function Header({ onReset, onShowHistory }: HeaderProps) {
         </button>
 
         <div className="flex items-center gap-2">
+          {totalCount !== null && (
+            <span className="text-stone-400 text-sm hidden sm:inline">
+              🎯 {totalCount.toLocaleString('de-DE')} Analysen
+            </span>
+          )}
           <button
             onClick={onShowHistory}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-300 hover:text-white text-sm transition-colors cursor-pointer"

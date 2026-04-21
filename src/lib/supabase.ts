@@ -47,6 +47,15 @@ export async function fetchSessionHistory(sessionId: string): Promise<HistoryEnt
   return (data ?? []) as HistoryEntry[];
 }
 
+export async function fetchTotalAnalysisCount(): Promise<number | null> {
+  const { count, error } = await supabase
+    .from('analysis_sessions')
+    .select('*', { count: 'exact', head: true });
+
+  if (error) return null;
+  return count;
+}
+
 // ─── Banner Tracking ──────────────────────────────────────────────────────────
 
 export async function trackBannerImpression(
