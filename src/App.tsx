@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { ViewType, AppPhase } from './types';
 import Header from './components/Header';
 import ViewSelector from './components/ViewSelector';
@@ -8,6 +9,12 @@ import AnalysisResults from './components/AnalysisResults';
 import AnalysisHistory from './components/AnalysisHistory';
 import { usePoseAnalysis } from './hooks/usePoseAnalysis';
 import { useSessionId } from './hooks/useSessionId';
+import Footer from './components/Footer';
+import Datenschutz from './pages/Datenschutz';
+import FAQ from './pages/FAQ';
+import Feedback from './pages/Feedback';
+import Help from './pages/Help';
+import Impressum from './pages/Impressum';
 
 export default function App() {
   const [phase, setPhase] = useState<AppPhase>('select');
@@ -40,7 +47,7 @@ export default function App() {
     setPhase('history');
   }, []);
 
-  return (
+  const mainContent = (
     <div className="min-h-screen bg-stone-950">
       <Header onReset={handleReset} onShowHistory={handleShowHistory} />
 
@@ -93,6 +100,22 @@ export default function App() {
           <AnalysisHistory sessionId={sessionId} onBack={() => setPhase('select')} />
         )}
       </main>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen flex flex-col bg-stone-950">
+      <div className="flex-1">
+        <Routes>
+          <Route path="/" element={mainContent} />
+          <Route path="/datenschutz" element={<Datenschutz />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/feedback" element={<Feedback />} />
+          <Route path="/help" element={<Help />} />
+          <Route path="/impressum" element={<Impressum />} />
+        </Routes>
+      </div>
+      <Footer />
     </div>
   );
 }
