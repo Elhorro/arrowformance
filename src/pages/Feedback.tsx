@@ -1,16 +1,10 @@
 // src/pages/Feedback.tsx
-import { useState } from 'react';
+import { useForm, ValidationError } from '@formspree/react';
 
 export default function Feedback() {
-  const [submitted, setSubmitted] = useState(false);
+  const [state, handleSubmit] = useForm('mdaywaqq');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Implement feedback submission to Supabase
-    setSubmitted(true);
-  };
-
-  if (submitted) {
+  if (state.succeeded) {
     return (
       <div className="min-h-screen bg-stone-950 text-white py-12 px-4">
         <div className="max-w-2xl mx-auto text-center">
@@ -42,6 +36,7 @@ export default function Feedback() {
             </label>
             <select
               id="type"
+              name="type"
               className="w-full bg-stone-900 border border-stone-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               required
             >
@@ -52,6 +47,7 @@ export default function Feedback() {
               <option value="praise">❤️ Lob</option>
               <option value="other">📝 Sonstiges</option>
             </select>
+            <ValidationError field="type" errors={state.errors} className="text-red-400 text-sm mt-1" />
           </div>
 
           <div>
@@ -60,11 +56,13 @@ export default function Feedback() {
             </label>
             <textarea
               id="message"
+              name="message"
               rows={8}
               className="w-full bg-stone-900 border border-stone-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               placeholder="Beschreibe dein Feedback so detailliert wie möglich..."
               required
             />
+            <ValidationError field="message" errors={state.errors} className="text-red-400 text-sm mt-1" />
           </div>
 
           <div>
@@ -74,17 +72,20 @@ export default function Feedback() {
             <input
               type="email"
               id="email"
+              name="email"
               className="w-full bg-stone-900 border border-stone-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               placeholder="Falls du eine Rückmeldung wünschst..."
             />
+            <ValidationError field="email" errors={state.errors} className="text-red-400 text-sm mt-1" />
           </div>
 
           <div className="flex gap-4">
             <button
               type="submit"
-              className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 rounded-lg transition-colors"
+              disabled={state.submitting}
+              className="flex-1 bg-amber-600 hover:bg-amber-700 disabled:bg-stone-700 disabled:text-stone-500 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
             >
-              Feedback senden
+              {state.submitting ? 'Wird gesendet...' : 'Feedback senden'}
             </button>
             <a
               href="/"
