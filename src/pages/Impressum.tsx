@@ -7,20 +7,38 @@ export default function Impressum() {
 
         <div className="space-y-6 text-stone-300">
           <section>
-            <h2 className="text-xl font-semibold text-amber-500 mb-3">Angaben gemäß § 5 TMG</h2>
-            <p>
-              Leopold [Nachname]<br />
-              [Straße Hausnummer]<br />
-              [PLZ] Feldbach/Steiermark<br />
+            <h2 className="text-xl font-semibold text-amber-500 mb-3">
+              Angaben gemäß § 25 MedienG und § 5 ECG
+            </h2>
+            <p className="leading-relaxed">
+              <strong className="text-white">Verein ZSAMMSITZN</strong><br />
+              ZVR-Nummer: 1667379939<br />
+              Gnaserstraße 6/4<br />
+              8330 Feldbach<br />
               Österreich
             </p>
           </section>
 
           <section>
+            <h2 className="text-xl font-semibold text-amber-500 mb-3">Vereinsvorstand</h2>
+            <p className="leading-relaxed">
+              Obmann: Leopold Kumpusch<br />
+              Obfrau: Simone Hochgerner
+            </p>
+          </section>
+
+          <section>
             <h2 className="text-xl font-semibold text-amber-500 mb-3">Kontakt</h2>
-            <p>
-              E-Mail: kontakt@arrowformance.com<br />
-              Website: https://arrowformance.com
+            <p className="leading-relaxed">
+              E-Mail:{' '}
+              <a href="mailto:gmiatlich@zsammsitzn.eu" className="text-amber-400 hover:underline">
+                gmiatlich@zsammsitzn.eu
+              </a><br />
+              Telefon: 0677 / 61 43 56 00<br />
+              Website:{' '}
+              <a href="https://arrowformance.com" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:underline">
+                arrowformance.com
+              </a>
             </p>
           </section>
 
@@ -31,7 +49,7 @@ export default function Impressum() {
             <p className="mb-4">
               Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit
               und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß
-              § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich.
+              § 18 ECG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich.
             </p>
 
             <h3 className="font-semibold mt-4 mb-2">Haftung für Links</h3>
