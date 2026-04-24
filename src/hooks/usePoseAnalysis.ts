@@ -29,7 +29,13 @@ export function usePoseAnalysis() {
         videoEl.load();
       });
 
-      // FIX 4: Duration-Validierung — NaN/Infinity crasht den gesamten Loop
+      // FIX 4: Duration-Validierung — Mobile-Browser brauchen Zeit für Metadaten (max 5s warten)
+      let retries = 0;
+      while ((!isFinite(videoEl.duration) || videoEl.duration <= 0) && retries < 50) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        retries++;
+      }
+
       if (!isFinite(videoEl.duration) || videoEl.duration <= 0) {
         throw new Error(
           'Video-Dauer konnte nicht ermittelt werden. Bitte ein anderes Video probieren.'
