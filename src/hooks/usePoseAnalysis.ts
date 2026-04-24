@@ -33,11 +33,13 @@ export function usePoseAnalysis() {
         }, 10_000);
 
         const tryResolve = () => {
-          if (isFinite(videoEl.duration) && videoEl.duration > 0) {
+          // Infinity = MediaRecorder-WebM ohne Duration-Header → auch akzeptieren,
+          // tatsächliche Länge wird danach per Seek ermittelt.
+          // NaN = noch nicht geladen → weiter warten.
+          if (videoEl.duration > 0) { // true für finite UND Infinity
             clearTimeout(timeout);
             resolve();
           }
-          // Noch nicht bereit → weiter auf nächstes Event warten
         };
 
         videoEl.onloadedmetadata = tryResolve;
@@ -50,6 +52,31 @@ export function usePoseAnalysis() {
 
         videoEl.load();
       });
+
+      setStatus('Video wird vorbereitet...');
+      setProgress(5);
+
+      // MediaRecorder-WebM Bug: duration = Infinity → tatsächliche Länge per Seek ermitteln.
+      // Funktioniert weil das Blob komplett im Speicher liegt.
+      if (!isFinite(videoEl.duration)) {
+        console.log('[Video] Infinity-Duration (MediaRecorder-WebM), ermittle Länge per Seek...');
+        videoEl.currentTime = 1e9; // Browser seeked zum letzten verfügbaren Frame
+        await new Promise<void>(r => {
+          const done = () => { videoEl.onseeked = null; r(); };
+          videoEl.onseeked = done;
+          setTimeout(done, 3000); // Fallback nach 3s
+        });
+        const detectedDuration = videoEl.currentTime;
+        console.log(`[Video] Ermittelte Dauer: ${detectedDuration.toFixed(2)}s`);
+
+        // Zurück zum Start
+        videoEl.currentTime = 0;
+        await new Promise<void>(r => {
+          const done = () => { videoEl.onseeked = null; r(); };
+          videoEl.onseeked = done;
+          setTimeout(done, 1000);
+        });
+      }
 
       setStatus('MediaPipe wird geladen...');
       setProgress(10);
@@ -72,7 +99,9 @@ export function usePoseAnalysis() {
       canvas.height = canvasHeight;
       const ctx = canvas.getContext('2d')!;
 
-      const duration = videoEl.duration;
+      // Nach dem Seek ist videoEl.duration für MediaRecorder-WebM immer noch Infinity,
+      // aber currentTime steht auf 0 — wir verwenden einen sicheren Fallback.
+      const duration = isFinite(videoEl.duration) ? videoEl.duration : 30;
       const maxFrames = 20;
       const interval = duration / maxFrames;
 
