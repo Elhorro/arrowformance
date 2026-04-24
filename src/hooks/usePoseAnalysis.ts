@@ -29,12 +29,32 @@ export function usePoseAnalysis() {
         videoEl.load();
       });
 
+      // FIX 4: Duration-Validierung — NaN/Infinity crasht den gesamten Loop
+      if (!isFinite(videoEl.duration) || videoEl.duration <= 0) {
+        throw new Error(
+          'Video-Dauer konnte nicht ermittelt werden. Bitte ein anderes Video probieren.'
+        );
+      }
+
       setStatus('MediaPipe wird geladen...');
       setProgress(10);
 
+      // FIX 2: Mobile Downscaling — große Videos auf mobilen Geräten skalieren
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const maxDimension = isMobile ? 1280 : 1920;
+      let canvasWidth = videoEl.videoWidth || 640;
+      let canvasHeight = videoEl.videoHeight || 480;
+
+      if (canvasWidth > maxDimension || canvasHeight > maxDimension) {
+        console.log(`[Video] Downscaling von ${canvasWidth}×${canvasHeight} für Performance...`);
+        const scale = maxDimension / Math.max(canvasWidth, canvasHeight);
+        canvasWidth = Math.round(canvasWidth * scale);
+        canvasHeight = Math.round(canvasHeight * scale);
+      }
+
       const canvas = document.createElement('canvas');
-      canvas.width = videoEl.videoWidth || 640;
-      canvas.height = videoEl.videoHeight || 480;
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
       const ctx = canvas.getContext('2d')!;
 
       const duration = videoEl.duration;
@@ -49,33 +69,44 @@ export function usePoseAnalysis() {
       const analysisStart = performance.now();
       const frameDurations: number[] = [];
 
-      for (let i = 0; i < maxFrames; i++) {
-        const time = i * interval;
-        videoEl.currentTime = time;
+      // FIX 3: Frame-Extraction in try-catch — fehlerhafte Frames crashen nicht die ganze Analyse
+      try {
+        for (let i = 0; i < maxFrames; i++) {
+          // FIX 1: Video-Time-Validierung — verhindert NaN/Infinity als currentTime (Mobile-Bug)
+          const targetTime = i * interval;
+          if (!isFinite(targetTime) || targetTime < 0 || targetTime > duration) {
+            console.warn(`[Video] Frame ${i} übersprungen: ungültige Zeit ${targetTime}`);
+            continue;
+          }
+          videoEl.currentTime = targetTime;
 
-        await new Promise<void>((resolve) => {
-          const onSeeked = () => {
-            videoEl.removeEventListener('seeked', onSeeked);
-            resolve();
-          };
-          videoEl.addEventListener('seeked', onSeeked);
-        });
+          await new Promise<void>((resolve) => {
+            const onSeeked = () => {
+              videoEl.removeEventListener('seeked', onSeeked);
+              resolve();
+            };
+            videoEl.addEventListener('seeked', onSeeked);
+          });
 
-        ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-        const { landmarks: lms, durationMs } = await detectPoseOnCanvas(canvas);
-        frameDurations.push(durationMs);
+          ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+          const { landmarks: lms, durationMs } = await detectPoseOnCanvas(canvas);
+          frameDurations.push(durationMs);
 
-        if (lms) {
-          allLandmarks.push(lms);
-          poseFrames.push({ timestamp: time, landmarks: lms });
+          if (lms) {
+            allLandmarks.push(lms);
+            poseFrames.push({ timestamp: targetTime, landmarks: lms });
+          }
+
+          setProgress(10 + Math.round((i / maxFrames) * 70));
         }
-
-        setProgress(10 + Math.round((i / maxFrames) * 70));
+      } catch (frameError) {
+        console.error('[Video] Frame-Extraction fehlgeschlagen:', frameError);
+        throw new Error(
+          'Video-Analyse fehlgeschlagen. Bitte versuche ein kürzeres oder kleineres Video.'
+        );
       }
 
       const totalAnalysisMs = performance.now() - analysisStart;
-
-      // FIX: avgFrameMs VOR saveAnalysisSession berechnen (war vorher danach → ReferenceError)
       const avgFrameMs = frameDurations.length > 0
         ? frameDurations.reduce((a, b) => a + b, 0) / frameDurations.length
         : 0;
@@ -107,6 +138,8 @@ export function usePoseAnalysis() {
         avg_frame_ms: Math.round(avgFrameMs),
         min_frame_ms: Math.round(minFrameMs),
         max_frame_ms: Math.round(maxFrameMs),
+        downscaled: canvasWidth !== (videoEl.videoWidth || 640),
+        mobile: isMobile,
       };
 
       try {

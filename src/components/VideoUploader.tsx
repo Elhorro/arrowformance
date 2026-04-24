@@ -55,6 +55,12 @@ export default function VideoUploader({ viewType, onUpload, onBack }: VideoUploa
       setError(`Datei zu groß. Maximal ${maxMB} MB erlaubt.`);
       return;
     }
+    // Mobile-Warnung bei großen Videos
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile && file.size > 100 * 1024 * 1024) {
+      setError('Hinweis: Dieses Video ist groß (> 100 MB). Auf mobilen Geräten empfehlen wir kleinere Videos für schnellere Analyse.');
+      // Kein return — Video trotzdem akzeptieren, nur warnen
+    }
     const url = URL.createObjectURL(file);
     setPreview(url);
     setSelectedFile(file);
