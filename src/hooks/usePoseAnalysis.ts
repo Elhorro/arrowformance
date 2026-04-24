@@ -18,29 +18,38 @@ export function usePoseAnalysis() {
     const videoEl = document.createElement('video');
     videoEl.muted = true;
     videoEl.playsInline = true;
+    videoEl.preload = 'metadata'; // Android: Metadaten explizit vorladen
 
     const objectUrl = URL.createObjectURL(file);
     videoEl.src = objectUrl;
 
     try {
+      // Warten bis duration tatsächlich valide ist — nicht nur auf onloadedmetadata.
+      // Android feuert onloadedmetadata bevor duration gesetzt ist; ondurationchange
+      // und oncanplay sind zuverlässigere Signale. Timeout nach 10s als Fallback.
       await new Promise<void>((resolve, reject) => {
-        videoEl.onloadedmetadata = () => resolve();
-        videoEl.onerror = () => reject(new Error('Video konnte nicht geladen werden'));
+        const timeout = setTimeout(() => {
+          reject(new Error('Video konnte nicht geladen werden (Timeout). Bitte ein kürzeres Video probieren.'));
+        }, 10_000);
+
+        const tryResolve = () => {
+          if (isFinite(videoEl.duration) && videoEl.duration > 0) {
+            clearTimeout(timeout);
+            resolve();
+          }
+          // Noch nicht bereit → weiter auf nächstes Event warten
+        };
+
+        videoEl.onloadedmetadata = tryResolve;
+        videoEl.ondurationchange   = tryResolve;
+        videoEl.oncanplay          = tryResolve;
+        videoEl.onerror = () => {
+          clearTimeout(timeout);
+          reject(new Error('Video konnte nicht geladen werden. Bitte Format prüfen (MP4, MOV, WebM).'));
+        };
+
         videoEl.load();
       });
-
-      // FIX 4: Duration-Validierung — Mobile-Browser brauchen Zeit für Metadaten (max 5s warten)
-      let retries = 0;
-      while ((!isFinite(videoEl.duration) || videoEl.duration <= 0) && retries < 50) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        retries++;
-      }
-
-      if (!isFinite(videoEl.duration) || videoEl.duration <= 0) {
-        throw new Error(
-          'Video-Dauer konnte nicht ermittelt werden. Bitte ein anderes Video probieren.'
-        );
-      }
 
       setStatus('MediaPipe wird geladen...');
       setProgress(10);
