@@ -1,6 +1,7 @@
 import { AnalysisResult, ViewType } from '../types';
 import MetricCard from './MetricCard';
 import BannerRotator from './BannerRotator';
+import AnalysisVideoOverlay from './AnalysisVideoOverlay';
 import { RotateCcw, CheckCircle, AlertTriangle, XCircle, MessageSquare, Layers, Zap, Cpu, History } from 'lucide-react';
 
 interface AnalysisResultsProps {
@@ -129,12 +130,29 @@ export default function AnalysisResults({ result, onReset, onNewAnalysis, onShow
         </div>
       </div>
 
+      {/* Pose Overlay */}
+      {result.poseFrames.length > 0 && (
+        <AnalysisVideoOverlay
+          poseFrames={result.poseFrames}
+          metrics={result.metrics}
+          viewType={result.viewType}
+        />
+      )}
+
       <div>
-        <h2 className="text-lg font-semibold text-white mb-4">Detaillierte Metriken</h2>
+        <h2 className="text-lg font-semibold text-white mb-1">Detaillierte Metriken</h2>
+        <p className="text-xs text-stone-500 mb-4">
+          Sortiert nach Priorität — 🔴 markierte Metriken haben den größten Einfluss auf deine Schussleistung.
+        </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {result.metrics.map((metric, i) => (
-            <MetricCard key={metric.label} metric={metric} index={i} />
-          ))}
+          {[...result.metrics]
+            .sort((a, b) => {
+              const pOrder = { high: 0, medium: 1, low: 2 };
+              return (pOrder[a.priority ?? 'low']) - (pOrder[b.priority ?? 'low']);
+            })
+            .map((metric, i) => (
+              <MetricCard key={metric.label} metric={metric} index={i} />
+            ))}
         </div>
       </div>
 

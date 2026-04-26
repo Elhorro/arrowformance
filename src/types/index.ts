@@ -17,6 +17,12 @@ export interface PostureMetric {
   score: number;
   status: 'good' | 'warning' | 'poor';
   feedback: string;
+  /** Why this issue matters for archery performance */
+  impact?: string;
+  /** Concrete corrective instruction */
+  fix?: string;
+  /** Priority rank — top-3 worst metrics are 'high' */
+  priority?: 'high' | 'medium' | 'low';
 }
 
 export interface PerformanceStats {
