@@ -173,7 +173,14 @@ export function usePoseAnalysis() {
 
       const metricsObj: Record<string, unknown> = {};
       metrics.forEach(m => {
-        metricsObj[m.label] = { value: m.value, score: m.score, status: m.status };
+        metricsObj[m.label] = {
+          value: m.value,
+          score: m.score,
+          status: m.status,
+          priority: m.priority,
+          ...(m.fix    && { fix: m.fix }),
+          ...(m.impact && { impact: m.impact }),
+        };
       });
 
       const performanceData = {

@@ -71,21 +71,21 @@ function statusFromScore(score: number): 'good' | 'warning' | 'poor' {
   return 'poor';
 }
 
-/** Assign priority ranks: top-3 worst scores = 'high', rest relative to status */
+/** Assign priority ranks: top-3 worst non-good scores = 'high', remaining non-good = 'medium', good = 'low' */
 function assignPriorities(metrics: PostureMetric[]): PostureMetric[] {
-  const indexed = metrics.map((m, i) => ({ m, i }));
+  const indexed = metrics.map((m) => ({ m }));
   // Sort by score ascending → worst first
   indexed.sort((a, b) => a.m.score - b.m.score);
   indexed.forEach(({ m }, rank) => {
-    if (rank < 3 && m.status !== 'good') {
-      m.priority = 'high';
-    } else if (m.status === 'warning') {
-      m.priority = 'medium';
+    if (m.status === 'good') {
+      m.priority = 'low';          // good metrics are never high-priority
+    } else if (rank < 3) {
+      m.priority = 'high';         // top-3 worst (warning or poor) → high
     } else {
-      m.priority = 'low';
+      m.priority = 'medium';       // remaining non-good → medium (not low!)
     }
   });
-  return metrics; // original order preserved
+  return metrics; // original insertion order preserved for display
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
