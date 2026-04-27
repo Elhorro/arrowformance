@@ -137,94 +137,102 @@ export function analyzeSideView(landmarks: NormalizedLandmark[]): PostureMetric[
   });
 
   // ── Bogenarm-Streckung ──
+  // Tolerant: 130–180° ist akzeptabel (Short-Draw, Instinktiv, recurve alle ok)
+  // Nur wirklich stark gebeugter Arm (< 120°) ist ein klares Problem
   const bowArmAngle = angle(ls, le, lw);
-  const bowArmScore = scoreFromRange(bowArmAngle, 165, 15);
+  const bowArmScore = bowArmAngle >= 130 ? 100
+    : bowArmAngle >= 120 ? 70
+    : 40;
   metrics.push({
     label: 'Bogenarm-Streckung',
     value: Math.round(bowArmAngle),
     unit: '°',
     score: bowArmScore,
     status: statusFromScore(bowArmScore),
-    feedback: bowArmAngle >= 155 && bowArmAngle <= 180
-      ? `Bogenarm: ${Math.round(bowArmAngle)}° — optimal gestreckt.`
-      : bowArmAngle < 155
-      ? `Bogenarm: ${Math.round(bowArmAngle)}° (Optimal: 155–175°) — Ellbogen zu gebeugt.`
-      : `Bogenarm: ${Math.round(bowArmAngle)}° — leichte Überstreckung.`,
-    impact: bowArmAngle < 155
-      ? 'Zu gebeugter Bogenarm reduziert die Streckkraft, verursacht Bogenschwankungen und führt zu Vertikalstreuung.'
+    feedback: bowArmAngle >= 130
+      ? `Bogenarm: ${Math.round(bowArmAngle)}° — gut gestreckt.`
+      : bowArmAngle >= 120
+      ? `Bogenarm: ${Math.round(bowArmAngle)}° — leicht gebeugt, kann stilbedingt sein.`
+      : `Bogenarm: ${Math.round(bowArmAngle)}° — ungewöhnlich stark gebeugt.`,
+    impact: bowArmAngle < 120
+      ? 'Sehr stark gebeugter Bogenarm kann Bogenschwankungen und Vertikalstreuung verursachen.'
       : undefined,
-    fix: bowArmAngle < 155
-      ? `Strecke den Bogenarm bis ca. 165° aus — aktuell ${Math.round(bowArmAngle)}°, Differenz: ${Math.round(165 - bowArmAngle)}° zu wenig.`
-      : bowArmAngle > 175
-      ? 'Minimal entspannen, Restspannung im Ellbogen halten um Sehnenflatter zu vermeiden.'
+    fix: bowArmAngle < 120
+      ? `Bogenarm deutlich stärker strecken (aktuell ${Math.round(bowArmAngle)}°). Bei anhaltend starker Beugung Trainer konsultieren.`
       : undefined,
   });
 
-  // ── Zugarm-Winkel ──
+  // ── Zugarm-Winkel (Anker-Position) ──
+  // SEHR individuell: Kinn-, Wangen-, Nasen-, Bauch-Anker alle legitim.
+  // Nur wirklich extreme Werte (< 40° oder > 130°) sind ungewöhnlich.
+  // Kein Feedback für den Bereich 40–130° — das ist die breite normale Varianz.
   const drawArmAngle = angle(rs, re, rw);
-  const drawScore = scoreFromRange(drawArmAngle, 90, 15);
+  const drawScore = (drawArmAngle >= 40 && drawArmAngle <= 130) ? 100
+    : (drawArmAngle >= 30 && drawArmAngle <= 140) ? 65
+    : 35;
   metrics.push({
     label: 'Zugarm-Winkel',
     value: Math.round(drawArmAngle),
     unit: '°',
     score: drawScore,
     status: statusFromScore(drawScore),
-    feedback: drawArmAngle >= 80 && drawArmAngle <= 100
-      ? `Zugarm: ${Math.round(drawArmAngle)}° — perfekter Anker-Winkel.`
-      : drawArmAngle < 80
-      ? `Zugarm: ${Math.round(drawArmAngle)}° (Optimal: 80–100°) — zu weit durchgezogen.`
-      : `Zugarm: ${Math.round(drawArmAngle)}° (Optimal: 80–100°) — Auszug zu kurz.`,
-    impact: drawArmAngle < 80
-      ? 'Zu weit durchgezogener Zugarm verursacht instabilen Anker und vertikale Trefferspiele.'
-      : drawArmAngle > 100
-      ? 'Zu kurzer Auszug reduziert Bogenenergie, führt zu geringerer Pfeilgeschwindigkeit und flacherer Bahn.'
+    feedback: drawArmAngle >= 40 && drawArmAngle <= 130
+      ? `Zugarm: ${Math.round(drawArmAngle)}° — im normalen Bereich.`
+      : drawArmAngle < 40
+      ? `Zugarm: ${Math.round(drawArmAngle)}° — ungewöhnlich kurzer Auszug erkannt.`
+      : `Zugarm: ${Math.round(drawArmAngle)}° — ungewöhnlich weiter Auszug erkannt.`,
+    // Kein "impact" für Normalbereich — Anker ist sehr individuell
+    impact: (drawArmAngle < 40 || drawArmAngle > 130)
+      ? 'Sehr ungewöhnliche Anker-Position — kann auf ein Technik-Problem hindeuten, muss aber nicht.'
       : undefined,
-    fix: drawArmAngle < 80
-      ? `Anker 1–2 cm nach vorne setzen. Ziel: 90° Zugarm-Winkel (aktuell ${Math.round(drawArmAngle)}°, ${Math.round(90 - drawArmAngle)}° zu weit).`
-      : drawArmAngle > 100
-      ? `Mehr durchziehen bis ca. 90°. Aktuell ${Math.round(drawArmAngle)}°, noch ${Math.round(drawArmAngle - 90)}° mehr nötig.`
+    fix: (drawArmAngle < 40 || drawArmAngle > 130)
+      ? `Anker-Position ist sehr individuell (Kinn, Wange, Nase — alles legitim). Lass einen Trainer prüfen ob diese Position für DICH passt.`
       : undefined,
   });
 
   // ── Zug-Ellbogen Höhe ──
+  // Tolerant: bis zu 10% unter Schulter ist für viele Stile/Anker normal.
+  // Nur deutlich tief hängender Ellbogen (> 12%) ist ein klares Warnsignal.
   const elbowHeightRaw = re.y - rs.y;
   const elbowHeightDeg = Math.round(Math.abs(elbowHeightRaw) * 100);
-  const elbowScore = elbowHeightRaw < 0.02 ? 100 : elbowHeightRaw < 0.06 ? 70 : 40;
+  const elbowScore = elbowHeightRaw < 0.10 ? 100 : elbowHeightRaw < 0.15 ? 70 : 40;
   metrics.push({
     label: 'Zug-Ellbogen Höhe',
-    value: elbowHeightRaw < 0 ? `${elbowHeightDeg}% über Schulter` : elbowHeightRaw < 0.02 ? 'Schulter-Niveau' : `${elbowHeightDeg}% unter Schulter`,
+    value: elbowHeightRaw < 0 ? `${elbowHeightDeg}% über Schulter` : elbowHeightRaw < 0.05 ? 'Schulter-Niveau' : `${elbowHeightDeg}% unter Schulter`,
     score: elbowScore,
     status: statusFromScore(elbowScore),
-    feedback: elbowHeightRaw <= 0.02
-      ? 'Zug-Ellbogen auf Schulterniveau — kraftvoller, stabiler Zug.'
-      : `Zug-Ellbogen ${elbowHeightDeg}% unter Schulterniveau — zu tief.`,
-    impact: elbowHeightRaw > 0.02
-      ? 'Zu tiefer Zug-Ellbogen reduziert die Rückenmuskel-Aktivierung und führt zu Arm-Schuss statt Rücken-Schuss.'
+    feedback: elbowHeightRaw < 0.10
+      ? `Zug-Ellbogen: ${elbowHeightRaw < 0.05 ? 'Schulter-Niveau' : elbowHeightDeg + '% unter Schulter'} — unauffällig.`
+      : `Zug-Ellbogen ${elbowHeightDeg}% unter Schulterniveau — deutlich tief.`,
+    impact: elbowHeightRaw >= 0.15
+      ? 'Stark hängender Zug-Ellbogen kann Rückenmuskel-Aktivierung reduzieren. Kann aber auch stilbedingt sein.'
       : undefined,
-    fix: elbowHeightRaw > 0.06
-      ? 'Ellbogen aktiv auf Schulterhöhe anheben. Stelle dir vor, du schiebst ihn nach hinten-oben.'
-      : elbowHeightRaw > 0.02
-      ? 'Ellbogen leicht anheben — Schulterblatt aktiv einziehen beim Durchziehen.'
+    fix: elbowHeightRaw >= 0.15
+      ? `Ellbogen etwas anheben (aktuell ${elbowHeightDeg}% unter Schulter). Falls das dein bewusster Stil ist, Trainer fragen.`
       : undefined,
   });
 
   // ── Kopfposition ──
+  // Seitenansicht: Kopf zeigt immer etwas zur Scheibe — das ist gewollt.
+  // Nur starke seitliche Neigung (> 8%) ist wirklich auffällig.
   const headTiltRaw = Math.abs(nose.x - shoulderMid.x);
   const headTiltPct = Math.round(headTiltRaw * 100);
-  const headScore = scoreFromRange(headTiltRaw, 0, 0.05);
+  const headScore = headTiltRaw < 0.08 ? 100 : headTiltRaw < 0.13 ? 70 : 40;
   metrics.push({
     label: 'Kopfposition',
-    value: headTiltRaw < 0.03 ? 'Zentriert' : `${headTiltPct}% versetzt`,
+    value: headTiltRaw < 0.05 ? 'Unauffällig' : `${headTiltPct}% versetzt`,
     score: headScore,
     status: statusFromScore(headScore),
-    feedback: headTiltRaw < 0.03
-      ? 'Kopf gut ausgerichtet — stabiles Zielbild.'
-      : `Kopf ${headTiltPct}% seitlich versetzt (Optimal: < 3%).`,
-    impact: headTiltRaw >= 0.03
-      ? 'Seitlich geneigter Kopf verändert die Sehnen-Anker-Geometrie und erzeugt horizontale Trefferspiele.'
+    feedback: headTiltRaw < 0.08
+      ? 'Kopfposition unauffällig.'
+      : headTiltRaw < 0.13
+      ? `Kopf ${headTiltPct}% seitlich versetzt — leicht auffällig.`
+      : `Kopf ${headTiltPct}% seitlich versetzt — deutliche seitliche Neigung erkannt.`,
+    impact: headTiltRaw >= 0.13
+      ? 'Stark seitlich geneigter Kopf kann den Anker-Punkt und die Ziellinie beeinflussen.'
       : undefined,
-    fix: headTiltRaw >= 0.03
-      ? 'Kopf zur Zielscheibe drehen (nicht neigen), Kinn leicht einziehen und Blicklinie waagerecht halten.'
+    fix: headTiltRaw >= 0.13
+      ? 'Kopf aufrichten, Blicklinie waagerecht zur Scheibe halten. Trainer fragen ob die Kopfposition passt.'
       : undefined,
   });
 

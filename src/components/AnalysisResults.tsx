@@ -130,6 +130,38 @@ export default function AnalysisResults({ result, onReset, onNewAnalysis, onShow
         </div>
       </div>
 
+      {/* Scope & Limitations */}
+      <div className="bg-amber-900/20 border border-amber-500/30 rounded-xl p-4 mb-6">
+        <h3 className="text-amber-400 font-semibold mb-3 flex items-center gap-2 text-sm">
+          <span>⚠️</span>
+          <span>Was diese Analyse kann — und was nicht</span>
+        </h3>
+        <div className="grid md:grid-cols-2 gap-4 text-xs">
+          <div>
+            <p className="text-emerald-400 font-semibold mb-1.5">✅ KI analysiert:</p>
+            <ul className="text-stone-300 space-y-1">
+              <li>• Körper-Symmetrie (Schultern, Hüfte)</li>
+              <li>• Grobe Gelenkwinkel (Ellbogen, Knie)</li>
+              <li>• Stand-Stabilität & Balance</li>
+              <li>• Offensichtliche Haltungsauffälligkeiten</li>
+            </ul>
+          </div>
+          <div>
+            <p className="text-red-400 font-semibold mb-1.5">❌ KI sieht NICHT:</p>
+            <ul className="text-stone-300 space-y-1">
+              <li>• Handstellung & Finger-Position</li>
+              <li>• Muskelspannung (Schulter vs. Rücken)</li>
+              <li>• Release-Qualität & Follow-Through</li>
+              <li>• Individuelle Stil- und Technik-Details</li>
+            </ul>
+          </div>
+        </div>
+        <p className="text-stone-400 text-xs mt-3 italic">
+          💡 Dieser Haltungs-Check zeigt auffällige Muster. Für echte Technik-Verbesserungen
+          empfehlen wir einen erfahrenen Trainer — viele Dinge sind sehr individuell.
+        </p>
+      </div>
+
       {/* Pose Overlay */}
       {result.poseFrames.length > 0 && (
         <AnalysisVideoOverlay
@@ -142,7 +174,7 @@ export default function AnalysisResults({ result, onReset, onNewAnalysis, onShow
       <div>
         <h2 className="text-lg font-semibold text-white mb-1">Detaillierte Metriken</h2>
         <p className="text-xs text-stone-500 mb-4">
-          Sortiert nach Priorität — 🔴 markierte Metriken haben den größten Einfluss auf deine Schussleistung.
+          Sortiert nach Priorität — 🔴 markierte Metriken sind die auffälligsten Punkte.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...result.metrics]

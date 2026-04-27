@@ -87,8 +87,8 @@ export default function ViewSelector({ onSelect, sessionId }: ViewSelectorProps)
           Wähle deine Aufnahmeperspektive
         </h1>
         <p className="text-stone-400 text-lg max-w-2xl mx-auto leading-relaxed">
-          Lade ein 10–15 Sekunden langes Video hoch. Unsere KI analysiert deine Bogenschützen-Haltung
-          und gibt dir gezieltes Feedback.
+          Lade ein 10–15 Sekunden langes Video hoch. Die KI prüft Körperhaltung
+          und Gelenkwinkel — als erster Haltungs-Check, kein Ersatz für einen Trainer.
         </p>
       </div>
 
@@ -140,9 +140,9 @@ export default function ViewSelector({ onSelect, sessionId }: ViewSelectorProps)
 
       <div className="mt-12 grid grid-cols-3 gap-4 max-w-2xl mx-auto">
         {[
-          { label: 'KI-Genauigkeit', value: '95%+' },
-          { label: 'Analyse-Frames', value: '20 fps' },
-          { label: 'Metriken', value: '6 pro Ansicht' },
+          { label: 'Analysierte Frames', value: '20' },
+          { label: 'Metriken pro Ansicht', value: '6' },
+          { label: 'Verarbeitung', value: 'Lokal' },
         ].map((stat) => (
           <div key={stat.label} className="text-center bg-stone-800/50 rounded-xl py-4 px-3 border border-stone-700/50">
             <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
